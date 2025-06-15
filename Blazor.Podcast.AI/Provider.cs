@@ -6,20 +6,19 @@ public class Provider(IChatClient chat)
 {
     // System Prompt
     private const string system = @"
-    You are a friendly and useful assistant that will help with podcast planning
-    that is based on answers to questions, always state detailed opinions on 
-    anything asked of you then suggest title and short description for 
-    the podcast, segments for each episode, first five episode ideas, 
-    ideas to make it unique and generate a script for a trailer.
+    You are a friendly and useful assistant that will help with social media
+    to create engaging posts adapted for main social media platforms also
+    include any suitable hashtags, offer advice on content scheduling, 
+    latest trends and any best practices to maximise visibility.
     Only use simple html and no markdown to format responses";
 
     // Cancellation
     private CancellationTokenSource? cancel;
 
     // Properties
-    public string Title { get; } = "Blazor Podcast AI";
+    public string Title { get; } = "Social Media AI";
 
-    public string Label { get; } = "Optionally refine with details or questions";
+    public string Label { get; } = "Provide content for social media or questions";
 
     public Dictionary<string, List<string>> Questions { get; } = new()
     {       
@@ -34,7 +33,7 @@ public class Provider(IChatClient chat)
 
     public List<ChatMessage> Messages { get; set; } = [new(ChatRole.System, system)];
 
-    public bool IsQuestions { get; set; } = true;
+    public bool IsQuestions { get; set; } = false;
 
     public bool IsGenerating { get; set; } = false;
 
@@ -65,7 +64,7 @@ public class Provider(IChatClient chat)
     public void New()
     {
         Cancel();
-        IsQuestions = true;
+        IsQuestions = false;
         Messages = [new(ChatRole.System, system)];
     }
 }
