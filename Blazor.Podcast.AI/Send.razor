@@ -1,0 +1,82 @@
+@* Edit Form *@
+<EditForm Model="@this" OnValidSubmit="@Submit" class="m-2"> 
+    @if(IsQuestions)
+    {
+        @foreach (var question in Questions.Keys)
+        {
+            <div class="form-group">
+                <label class="form-label">@question</label>
+                @if (Questions[question].Count > 1)
+                {
+                    <select class="form-control mb-2" @bind="@answers[question]">
+                        <option value="">Select Option</option>
+                        @foreach (var answer in Questions[question])
+                        {
+                            <option value="@answer">@answer</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <textarea class="form-control mb-2" rows="1" 
+                    @bind="@answers[question]" />
+                }
+            </div>
+        }
+    }
+    <div class="form-group">
+        <label class="form-label">@TextAreaLabel</label>
+        <textarea class="form-control mb-2" rows="2" @bind="@message" />
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">
+        Send
+    </button>
+    <button type="reset" class="btn btn-secondary mb-2">
+        Reset
+    </button>
+</EditForm>
+
+@code {
+    // Members
+    private Dictionary<string, string> answers = new();
+    private string? message;
+
+    // Parameters
+    [Parameter]
+    public string? TextAreaLabel { get; set; }
+
+    [Parameter]
+    public bool IsQuestions { get; set; }
+
+    [Parameter]
+    public Dictionary<string, List<string>> Questions { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string> OnSend { get; set; }
+
+    // Submit Method
+    private async Task Submit()
+    {
+        if (IsQuestions)
+        {
+            if (message?.Length > 0)
+            {
+                answers.Add(string.Empty, message);
+            }
+            if (answers.Values.All(a => !string.IsNullOrWhiteSpace(a)))
+            {
+                message = string.Join(",", 
+                answers.Select(value => $"{value.Key} {value.Value}"));
+            }
+        }
+        if (message is { Length: > 0 } text)
+        {
+            message = null;
+            await OnSend.InvokeAsync(text);
+        }
+    }
+
+    // OnInitialized Method
+    protected override void OnInitialized() =>
+        answers = Questions.ToDictionary(kvp => kvp.Key, kvp => string.Empty);
+}
